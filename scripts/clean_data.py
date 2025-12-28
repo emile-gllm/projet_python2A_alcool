@@ -1,6 +1,7 @@
 import pandas as pd
 import seaborn as sns
 import matplotlib.pyplot as plt
+import numpy as np
 
 country_mapping = {
     10: 'Austria',
@@ -246,40 +247,33 @@ def trace_camemberts_na(data, var_na='RSOD_2bisna', var_groupe='SD_1',
     Génère des camemberts pour la répartition des NA 
     selon les modalités d'une variable.
     """
-    # Nettoyage des données pour le groupe (on ignore les NA de la variable de groupe)
+    # Nettoyage: on ignore les NA de la variable de groupe
     df_plot = data.dropna(subset=[var_groupe])
     modalites = sorted(df_plot[var_groupe].unique())
     
     fig, axes = plt.subplots(1, len(modalites), figsize=(4 * len(modalites), 6))
-    
-    # Si une seule modalité, axes n'est pas une liste, on le transforme
-    if len(modalites) == 1:
-        axes = [axes]
 
-    # Paramètres esthétiques
-    colors = ['#66b3ff', '#ff9999'] # Bleu pour Répondant, Rose pour Manquant
+    colors = ['#66b3ff', '#ff9999'] # Bleu pour Répondant,rose pour Manquant
     labels_na = {0: 'Répondant', 1: 'Manquant'}
 
     for i, mod in enumerate(modalites):
         subset = df_plot[df_plot[var_groupe] == mod]
         counts = subset[var_na].value_counts().sort_index()
         
-        # Création du camembert
+
         axes[i].pie(
             counts, 
             labels=[labels_na.get(x, x) for x in counts.index],
             autopct='%1.1f%%', 
             startangle=140,
             colors=colors,
-            pctdistance=0.85, # Place le % vers l'extérieur
-            labeldistance=1.1  # Place le texte (Répondant/Manquant) à l'extérieur
+            pctdistance=0.85, #Place le % vers l'extérieur
+            labeldistance=1.1  
         )
         
-        # Titre spécifique à chaque camembert
+        #Titre spécifique à chaque camembert
         nom_modalite = dict_labels.get(mod, f"Groupe {mod}") if dict_labels else f"Groupe {mod}"
         axes[i].set_title(nom_modalite, fontweight='bold', pad=20)
-
-    # titre général
     plt.suptitle(titre_general, fontsize=16, fontweight='bold', y=1.05)
     
     plt.figtext(0.1, -0.1, source_texte, fontsize=10, ha='left', linespacing=1.5)
@@ -307,7 +301,7 @@ def trace_barplot_na(data, var_quanti='bsqf_alc', var_na='RSOD_2bisna',
     # Mapping du statut
     df_temp['statut_na'] = df_temp[var_na].map({0: 'Répondant', 1: 'Non répondant'})
     
-    # Calcul des statistiques (table de contingence normalisée)
+    # Calcul table de contingence normalisée
     tab = pd.crosstab(df_temp['groupe_quanti'], df_temp['statut_na'], normalize='index') * 100
 
     fig, ax = plt.subplots(figsize=(12, 8))
@@ -320,7 +314,7 @@ def trace_barplot_na(data, var_quanti='bsqf_alc', var_na='RSOD_2bisna',
     plt.xticks(rotation=0)
     plt.grid(axis='y', linestyle='--', alpha=0.3)
 
-    # Ajout des étiquettes de pourcentage sur les barres
+    #Ajout des pourcentage sur les barres
     for p in ax.patches:
         width, height = p.get_width(), p.get_height()
         x, y = p.get_xy() 
@@ -348,9 +342,8 @@ def tableau_effectifs_pays(data):
     # Tri décroissant des effectifs
     df_count = df_count.sort_values(by='Nombre d\'observations', ascending=False)
 
-
     titre = "RÉPARTITION DU NOMBRE DE RÉPONDANTS PAR PAYS"
-    source_champ = "Source : SEAS-2 | Champ : 33 pays européens"
+    source_champ = "Source : The Standard European Alcohol Survey – Wave 2| Champ : 33 pays européens"
     
     return (df_count.style
             .format("{:,.0f}")
@@ -420,6 +413,31 @@ def compare_cartes_ppa(data, europe, col_nom, col_ppa, texte_a, texte_b):
     for ax in [ax1, ax2]:
         ax.set_xlim(-25, 45); ax.set_ylim(33, 72); ax.axis('off')
     
+    plt.show()
+
+
+
+
+def afficher_tableau_distribution(data, lecture, nom_variable="SD_7"):
+    #Calcul du tableau de distribution
+    df_tab = pd.concat([
+        data[nom_variable].value_counts(),
+        (data[nom_variable].value_counts(normalize=True) * 100).round(2)
+    ], axis=1, keys=['Effectif', 'Pourcentage (%)']).sort_index()
+
+    # Affichage
+    display(df_tab)
+    print(f"Source : SEAS-2 | Champ : France | Lecture : {lecture}")
+
+def tracer_barplot_vsbscqf(data, lecture, var_x="SD_7", var_y="bsq_alc"):
+    plt.figure(figsize=(10, 6))
+    ax = sns.barplot(data, x=var_x, y=var_y, errorbar=None)
+    
+    plt.title(f"Moyenne de la consommation d'alcool annuelle en cl ({var_y}) selon le nombre de mineurs ({var_x})", fontweight='bold')
+    source = f"Source : SEAS-2 | Champ : France | Lecture : {lecture}"
+    plt.figtext(0.1, -0.05, source , fontsize=9, style='italic')
+    
+    plt.tight_layout()
     plt.show()
 
 
