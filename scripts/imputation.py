@@ -12,57 +12,6 @@ import statsmodels.api as sm
 from sklearn.ensemble import StackingRegressor, RandomForestRegressor
 
 
-def convertir_salaires_en_euro(df, col_salaire='sd_20month', col_pays='COUNTRY'):
-    """
-    Convertit la colonne des salaires (monnaie locale) en Euros (base 2020)
-    en utilisant un dictionnaire de taux de change fixe.
-    La colonne originale est écrasée par les valeurs converties.
-    """
-    
-    # 1. Définition des taux (1 Unité Locale = X Euros)
-    conversion_rates = {
-        # Zone Euro (Taux = 1)
-        'Austria': 1.0, 'Belgium': 1.0, 'Cyprus': 1.0, 'Finland': 1.0, 'France': 1.0,
-        'Germany': 1.0, 'Greece': 1.0, 'Ireland': 1.0, 'Italy': 1.0, 'Luxembourg': 1.0,
-        'Malta': 1.0, 'Netherlands': 1.0, 'Portugal': 1.0, 'Slovakia': 1.0, 'Slovenia': 1.0,
-        'Spain': 1.0, 'Catalunya': 1.0, 'Estonia': 1.0, 'Latvia': 1.0, 'Lithuania': 1.0,
-
-        # Hors Zone Euro
-        'BosniaHerzegovina': 1 / 1.956,  # BAM
-        'Bulgaria': 1 / 1.956,           # BGN
-        'Croatia': 1 / 7.430,            # HRK
-        'Denmark': 1 / 7.472,            # DKK
-        'Hungary': 1 / 330.50,           # HUF
-        'Iceland': 1 / 138.83,           # ISK
-        'Moldova': 1 / 19.33,            # MDL
-        'Norway': 1 / 9.855,             # NOK
-        'Poland': 1 / 4.256,             # PLN
-        'Romania': 1 / 4.779,            # RON
-        'Serbia': 1 / 117.85,            # RSD
-        'Sweden': 1 / 10.467,            # SEK
-        'Czech Republic': 1 / 25.40,     # CZK
-        'United Kingdom': 1 / 0.844,     # GBP
-        'Switzerland': 1 / 1.07,         # CHF (Ajout fréquent, à vérifier si présent)
-        'North Macedonia': 1 / 61.50,    # MKD
-        'Albania': 1 / 122.00,           # ALL
-        'Montenegro': 1.0,               # Utilise l'Euro
-        'Kosovo': 1.0,                   # Utilise l'Euro
-        'Ukraine': 1 / 26.50             # UAH (Approx 2020)
-    }
-
-    # 2. Création du vecteur de taux correspondant aux pays du DataFrame
-    # On utilise map() pour associer chaque ligne à son taux
-    taux_applicables = df[col_pays].map(conversion_rates)
-
-    # 4. Conversion et Remplacement
-    # On écrase l'ancienne colonne par la nouvelle valeur
-    df['sd_20month_EUR_2020'] = df[col_salaire] * taux_applicables
-    df.drop(columns=[col_salaire], inplace=True)
-
-    print(f"Conversion terminée. La colonne '{col_salaire}' est maintenant exprimée en EUROS.")
-
-    return df
-
 def imputer_salaire_pays(df, colonne_salaire='sd_20month_EUR_2020', colonne_pays='COUNTRY', liste_pays = ['France', 'Iceland', 'Bulgaria', 'Poland']):
     """
     Parcourt tous les pays de la base. Pour chaque pays, entraîne un modèle 
@@ -127,6 +76,8 @@ def imputer_salaire_pays(df, colonne_salaire='sd_20month_EUR_2020', colonne_pays
     
     print("\n--- Imputation terminée pour tous les pays ---")
     return df
+
+
 
 def imputer_knn(df, cols_cibles=['RSOD_2b', 'SD_7'], col_pays='COUNTRY', n_voisins=5, liste_pays=['France', 'Iceland', 'Bulgaria', 'Poland']):
     """

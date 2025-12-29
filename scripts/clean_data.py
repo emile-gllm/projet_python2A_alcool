@@ -93,6 +93,7 @@ conversion_rates = {
 
 
 
+
 # Valeurs brutes de parité (PPP)
 # Source : Eurostat 2020 (Table prc_ppp_ind_1)
 # https://ec.europa.eu/eurostat/databrowser/view/prc_ppp_ind_1/default/table?lang=fr
@@ -217,15 +218,6 @@ def trace_table_contingence(data, var_x='RSOD_2b', var_y='f_1b'):
         val = core.iloc[i, j]
         ax.text(j, i, int(val), ha="center", va="center", 
                 color="white" if val > thresh else "black")
-
-    # Affichage des totaux 
-    ax.text(len(core.columns), -0.7, "TOTAL", ha="center", fontweight='bold')
-    ax.text(-0.7, len(core.index), "TOTAL", ha="right", va="center", fontweight='bold')
-
-    for i, v in enumerate(r_tot):
-        ax.text(len(core.columns), i, int(v), ha="center", va="center", fontweight='bold')
-    for j, v in enumerate(c_tot):
-        ax.text(j, len(core.index), int(v), ha="center", va="center", fontweight='bold')
 
     plt.figtext(0.1, -0.08, "Source : [The Standard European Alcohol Survey – Wave 2]\nChamp : [33 pays européens] \n Lecture: La probabilité qu'un individu ait consommé plus de 4/6 verres d'alcool un seul jour par an\nsachant qu'il a consommé de l'alcool un seul jour par an est de 811/939 (case(1,1)/total de la colonne) = 0.86.", fontsize=10)
    
@@ -419,15 +411,15 @@ def compare_cartes_ppa(data, europe, col_nom, col_ppa, texte_a, texte_b):
 
 
 def afficher_tableau_distribution(data, lecture, nom_variable="SD_7"):
-    #Calcul du tableau de distribution
+    # Calcul du tableau de distribution
     df_tab = pd.concat([
         data[nom_variable].value_counts(),
         (data[nom_variable].value_counts(normalize=True) * 100).round(2)
     ], axis=1, keys=['Effectif', 'Pourcentage (%)']).sort_index()
 
-    # Affichage
-    display(df_tab)
-    print(f"Source : SEAS-2 | Champ : France | Lecture : {lecture}")
+    # source/champ/lecture
+    source = f"Source : SEAS-2 | Champ : France | Lecture : {lecture}"
+    display(df_tab.style.set_caption(source))
 
 def tracer_barplot_vsbscqf(data, lecture, var_x="SD_7", var_y="bsq_alc"):
     plt.figure(figsize=(10, 6))
@@ -436,7 +428,6 @@ def tracer_barplot_vsbscqf(data, lecture, var_x="SD_7", var_y="bsq_alc"):
     plt.title(f"Moyenne de la consommation d'alcool annuelle en cl ({var_y}) selon le nombre de mineurs ({var_x})", fontweight='bold')
     source = f"Source : SEAS-2 | Champ : France | Lecture : {lecture}"
     plt.figtext(0.1, -0.05, source , fontsize=9, style='italic')
-    
     plt.tight_layout()
     plt.show()
 
