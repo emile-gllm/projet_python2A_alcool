@@ -33,6 +33,7 @@ Enfin, pour chaque pays choisi, nous essayons de modéliser la consommation d'al
 
 ## Références
 (Références étudiées comme préliminaire au projet mais non réellement citées dans celui-ci.)
+
 [1] Beard, E., Brown, J., West, R., Kaner, E., Meier, P., & Michie, S. (2019). Associations between socio-economic factors and alcohol consumption: A population survey of adults in England. PLOS ONE.
 
 [2] Mikolasek, J. (2015). Social, Demographic and Behavioral Determinants of Alcohol Consumption. Econstor.
